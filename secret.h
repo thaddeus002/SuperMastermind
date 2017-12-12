@@ -15,7 +15,7 @@
 
 /** The possible color for each code's key */
 typedef enum color_ {
-    RED, GREEN, BLUE, WHITE, BLACK, CYAN, YELLOW, MAGENTA
+    RED, GREEN, BLUE, WHITE, ORANGE, CYAN, YELLOW, PURPLE
 } color_t;
 
 /** A type to store the secret*/

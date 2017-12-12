@@ -2,12 +2,12 @@
 
 PROG=SuperMastermind
 
-OBJS=main.o secret.o
+OBJS=main.o secret.o game.o
 
 all: $(PROG)
 
 $(PROG): $(OBJS)
-	gcc -o $@ $^
+	gcc -o $@ $^ -lSDL
 
 %.o: %.c
 	gcc -c $<
@@ -19,6 +19,4 @@ clean:
 
 mrproper: clean
 	rm -f $(PROG)
-
-
 

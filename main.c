@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "secret.h"
+#include "game.h"
 
 #define AUTHOR "Yannick Garcia"
 #define VERSION "0.0.1"
@@ -50,12 +51,14 @@ int main(int argc, char **argv) {
 
     present(argv[0]);
 
+    // this is for testing
+
     err=change_code(&code);
 
     try[0]=RED;
-    try[1]=BLACK;
+    try[1]=ORANGE;
     try[2]=GREEN;
-    try[3]=MAGENTA;
+    try[3]=PURPLE;
     try[4]=WHITE;
 
     result = test(&try, &code);
@@ -64,6 +67,10 @@ int main(int argc, char **argv) {
     print_result(result);
     free(result);
     print_code(code);
+
+
+    // view the board
+    err = new_game();
 
     return err;
 }
