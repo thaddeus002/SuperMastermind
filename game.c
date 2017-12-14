@@ -12,6 +12,9 @@
 #define WIDTH 541
 #define HEIGHT 700
 
+#define HEADER_HEIGHT 120
+#define LINE_HEIGHT 58
+
 
 /** the files for the colored balls */
 static char *ballsImages[] = { "data/red.bmp", "data/green.bmp", "data/blue.bmp", "data/white.bmp", "data/orange.bmp", "data/cyan.bmp", "data/yellow.bmp", "data/purple.bmp"};
@@ -27,12 +30,69 @@ static color_t selectedColor;
 static code_t try;
 
 
+static void init_game_state() {
+    int i;
+    tryNumber = 1;
+    selectedColor = RED;
+    for(i=0; i<CODE_LENGHT; i++) {
+        try[i]=UNDEFINED;
+    }
+}
+
+
+/**
+ * \return the index of color for pos (x, y) or -1
+ */
+static int place_color(int x, int y) {
+
+    int yCenter = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2;
+    int i;
+
+    if((y>yCenter+15) || (y<yCenter-15)) {
+        return -1;
+    }
+
+    for(i=0; i<CODE_LENGHT; i++) {
+        int xCenter = 70 + i * 50;
+
+        if((x>xCenter-15) && (x<xCenter+15)) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+
+static void board_draw_color(SDL_Surface *screen, int index, color_t color) {
+
+    SDL_Surface *colorBall;
+    SDL_Rect ballPosition;
+
+    ballPosition.x = 70 + 50 * index - 17;
+    ballPosition.y = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2 - 17;
+
+    colorBall = SDL_LoadBMP(ballsImages[selectedColor]);
+    /* The white must be turned to transparent */
+    SDL_SetColorKey(colorBall, SDL_SRCCOLORKEY, SDL_MapRGB(colorBall->format, 255, 255, 255));
+    SDL_BlitSurface(colorBall, NULL, screen, &ballPosition);
+    SDL_FreeSurface(colorBall);
+    /* Update screen */
+    SDL_Flip(screen);
+}
+
+
+
 /**
  * A mouse clic has been made on position x,y.
  */
-static void got_clic(int x, int y) {
+static void got_clic(SDL_Surface *screen, int x, int y) {
 
-
+    int p = place_color(x, y);
+    if(p>=0) {
+        try[p]=selectedColor;
+        board_draw_color(screen, p, selectedColor);
+    }
 }
 
 
@@ -107,7 +167,7 @@ static void add_colors_board(SDL_Surface *plateau) {
     position.x = 340 + 1;
     position.y = 0;
 
-    board = SDL_CreateRGBSurface(SDL_HWSURFACE, 200, 120, 32, 0, 0, 0, 0);
+    board = SDL_CreateRGBSurface(SDL_HWSURFACE, 200, HEADER_HEIGHT, 32, 0, 0, 0, 0);
     SDL_FillRect(board, NULL, SDL_MapRGB(board->format, 121, 69, 24));
 
     text = SDL_LoadBMP("data/selector.bmp");
@@ -141,11 +201,42 @@ static void add_colors_board(SDL_Surface *plateau) {
 }
 
 
+/**
+ * Show the places for the colors of next try.
+ * \param board main window screen
+ */
+static void next_try(SDL_Surface *screen) {
+
+    SDL_Surface *undefColor;
+    SDL_Rect ballPosition;
+    int i;
+
+    undefColor = SDL_LoadBMP("data/undefined.bmp");
+    /* The white must be turned to transparent */
+    SDL_SetColorKey(undefColor, SDL_SRCCOLORKEY, SDL_MapRGB(undefColor->format, 255, 255, 255));
+
+
+    ballPosition.y = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2 - undefColor->h/2;
+
+    for(i=0; i<CODE_LENGHT; i++) {
+        ballPosition.x = 70 + 50 * i - undefColor->w/2;
+        SDL_BlitSurface(undefColor, NULL, screen, &ballPosition);
+    }
+
+    SDL_FreeSurface(undefColor);
+    /* Update screen */
+    SDL_Flip(screen);
+}
+
+
+
 int new_game() {
     SDL_Surface *screen;
     SDL_Event event;
     int loop = 1;
     int i;
+
+    init_game_state();
 
     if (SDL_Init(SDL_INIT_VIDEO) == -1) {
         fprintf(stderr, "Error initializing SDL : %s\n", SDL_GetError());
@@ -164,12 +255,12 @@ int new_game() {
     add_vertical_separator(screen, 340);
     add_secret(screen);
     add_colors_board(screen);
-    add_horizontal_separator(screen, 120);
+    add_horizontal_separator(screen, HEADER_HEIGHT);
     // tries' zones
     for(i=1;i<=9;i++) {
-        add_horizontal_separator(screen, 120+60*i);
+        add_horizontal_separator(screen, HEADER_HEIGHT+LINE_HEIGHT*i);
     }
-
+    next_try(screen);
 
     SDL_Flip(screen); /* Update screen */
 
@@ -192,7 +283,7 @@ int new_game() {
 
         case SDL_MOUSEBUTTONUP:
             if (event.button.button == SDL_BUTTON_LEFT) {
-                got_clic(event.button.x, event.button.y);
+                got_clic(screen, event.button.x, event.button.y);
             }
             break;
         }
