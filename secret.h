@@ -37,6 +37,13 @@ int change_code(code_t *code);
 
 
 /**
+ * Verify that all the keys in a code are defined.
+ * \return 1 is there a no UNDEFINED value in code, 0 otherwise
+ */
+int is_completed(code_t *code);
+
+
+/**
  * Compare a combinaison to the secret code.
  */
 int *test(code_t *combinaison, code_t *secret);
