@@ -29,6 +29,8 @@ static color_t selectedColor;
 /** current code try */
 static code_t try;
 
+/** The secret to find */
+static code_t secret;
 
 static void init_game_state() {
     int i;
@@ -37,6 +39,7 @@ static void init_game_state() {
     for(i=0; i<CODE_LENGHT; i++) {
         try[i]=UNDEFINED;
     }
+    change_code(&secret);
 }
 
 
@@ -82,6 +85,107 @@ static void board_draw_color(SDL_Surface *screen, int index, color_t color) {
 }
 
 
+/**
+ * Draw a button to validate an attempt.
+ */
+static void board_show_button(SDL_Surface *screen) {
+
+    SDL_Surface *button;
+    SDL_Rect position;
+
+    button = SDL_LoadBMP("data/verify_btn.bmp");
+
+    if(button == NULL) {
+        fprintf(stderr, "Couldn't open %s\n", "data/verify_btn.bmp");
+        return;
+    }
+
+    position.x = 340 + 200 / 2 - button->w / 2;
+    position.y = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2 - button->h / 2;
+
+    SDL_BlitSurface(button, NULL, screen, &position);
+    SDL_FreeSurface(button);
+    /* Update screen */
+    SDL_Flip(screen);
+}
+
+/**
+ * Draw a button to validate an attempt.
+ */
+static void board_mask_button(SDL_Surface *screen) {
+
+    SDL_Surface *mask;
+    SDL_Rect position;
+
+    mask = SDL_CreateRGBSurface(SDL_HWSURFACE, 100, 38, 32, 0, 0, 0, 0);
+    SDL_FillRect(mask, NULL, SDL_MapRGB(mask->format, 79, 33, 17));
+
+    position.x = 340 + 200 / 2 - mask->w / 2;
+    position.y = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2 - mask->h / 2;
+
+    SDL_BlitSurface(mask, NULL, screen, &position);
+    SDL_FreeSurface(mask);
+}
+
+static int clic_verify(int x, int y) {
+
+    int xmin, xmax, ymin, ymax;
+    int x0, y0;
+
+    x0 = 340 + 200 / 2;
+    y0 = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2;
+
+    xmin = x0 - 100 / 2;
+    xmax = x0 + 100 / 2;
+    ymin = y0 - 38 / 2;
+    ymax = y0 + 38 / 2;
+
+    if(x>xmin && x<xmax && y>ymin && y<ymax) {
+        return 1;
+    }
+    return 0;
+}
+
+
+static void board_show_result(SDL_Surface *screen, int *result) {
+
+    int i; // counter
+    int stars = result[0] + result[1];
+    SDL_Rect position;
+    SDL_Surface *good, *mis;
+
+    good = NULL;
+    mis = NULL;
+
+    board_mask_button(screen);
+
+    position.y = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2 - 7;
+
+    for(i=1; i<=stars; i++) {
+        position.x = 340 + 12 + 40 * (i-1);
+
+        if(i<=result[0]) {
+            if(good == NULL) {
+                good = SDL_LoadBMP("data/good.bmp");
+                SDL_SetColorKey(good, SDL_SRCCOLORKEY, SDL_MapRGB(good->format, 255, 255, 255));
+            }
+            SDL_BlitSurface(good, NULL, screen, &position);
+        } else {
+            if(mis == NULL) {
+                mis = SDL_LoadBMP("data/misplaced.bmp");
+                SDL_SetColorKey(mis, SDL_SRCCOLORKEY, SDL_MapRGB(mis->format, 255, 255, 255));
+            }
+            SDL_BlitSurface(mis, NULL, screen, &position);
+        }
+    }
+
+    if(good!=NULL) SDL_FreeSurface(good);
+    if(mis!=NULL) SDL_FreeSurface(mis);
+    /* Update screen */
+    SDL_Flip(screen);
+}
+
+
 
 /**
  * A mouse clic has been made on position x,y.
@@ -89,9 +193,24 @@ static void board_draw_color(SDL_Surface *screen, int index, color_t color) {
 static void got_clic(SDL_Surface *screen, int x, int y) {
 
     int p = place_color(x, y);
+    int v = clic_verify(x, y);
+
     if(p>=0) {
         try[p]=selectedColor;
         board_draw_color(screen, p, selectedColor);
+        if(is_completed(&try)) {
+            board_show_button(screen);
+        }
+        return;
+    }
+
+    if(v) {
+        int *result = test(&try, &secret);
+        fprintf(stdout, "%d good - %d misplaced\n", result[0], result[1]);
+        board_show_result(screen, result);
+        // TODO
+        free(result);
+        return;
     }
 }
 
