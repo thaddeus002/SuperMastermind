@@ -32,14 +32,20 @@ static code_t try;
 /** The secret to find */
 static code_t secret;
 
-static void init_game_state() {
+
+static void init_attempt_state() {
     int i;
-    tryNumber = 1;
-    selectedColor = RED;
     for(i=0; i<CODE_LENGHT; i++) {
         try[i]=UNDEFINED;
     }
+}
+
+
+static void init_game_state() {
+    tryNumber = 1;
+    selectedColor = RED;
     change_code(&secret);
+    init_attempt_state();
 }
 
 
@@ -127,10 +133,19 @@ static void board_mask_button(SDL_Surface *screen) {
     SDL_FreeSurface(mask);
 }
 
+
+/**
+ * Clic on the "Verify" button. try must be complete.
+ * \return 1 only if the try is completed
+ */
 static int clic_verify(int x, int y) {
 
     int xmin, xmax, ymin, ymax;
     int x0, y0;
+
+    if(!is_completed(&try)) {
+        return 0;
+    }
 
     x0 = 340 + 200 / 2;
     y0 = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2;
@@ -187,6 +202,36 @@ static void board_show_result(SDL_Surface *screen, int *result) {
 
 
 
+
+/**
+ * Show the places for the colors of next try.
+ * \param board main window screen
+ */
+static void next_try(SDL_Surface *screen) {
+
+    SDL_Surface *undefColor;
+    SDL_Rect ballPosition;
+    int i;
+
+    undefColor = SDL_LoadBMP("data/undefined.bmp");
+    /* The white must be turned to transparent */
+    SDL_SetColorKey(undefColor, SDL_SRCCOLORKEY, SDL_MapRGB(undefColor->format, 255, 255, 255));
+
+
+    ballPosition.y = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2 - undefColor->h/2;
+
+    for(i=0; i<CODE_LENGHT; i++) {
+        ballPosition.x = 70 + 50 * i - undefColor->w/2;
+        SDL_BlitSurface(undefColor, NULL, screen, &ballPosition);
+    }
+
+    SDL_FreeSurface(undefColor);
+    /* Update screen */
+    SDL_Flip(screen);
+}
+
+
+
 /**
  * A mouse clic has been made on position x,y.
  */
@@ -208,8 +253,18 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
         int *result = test(&try, &secret);
         fprintf(stdout, "%d good - %d misplaced\n", result[0], result[1]);
         board_show_result(screen, result);
-        // TODO
+        if(result[0] == CODE_LENGHT) {
+            // TODO Victory
+        }
         free(result);
+        if(tryNumber < 10) {
+            tryNumber++;
+            init_attempt_state();
+            next_try(screen);
+        } else {
+            // TODO Defeat
+        }
+
         return;
     }
 }
@@ -318,35 +373,6 @@ static void add_colors_board(SDL_Surface *plateau) {
 
     SDL_FreeSurface(board);
 }
-
-
-/**
- * Show the places for the colors of next try.
- * \param board main window screen
- */
-static void next_try(SDL_Surface *screen) {
-
-    SDL_Surface *undefColor;
-    SDL_Rect ballPosition;
-    int i;
-
-    undefColor = SDL_LoadBMP("data/undefined.bmp");
-    /* The white must be turned to transparent */
-    SDL_SetColorKey(undefColor, SDL_SRCCOLORKEY, SDL_MapRGB(undefColor->format, 255, 255, 255));
-
-
-    ballPosition.y = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2 - undefColor->h/2;
-
-    for(i=0; i<CODE_LENGHT; i++) {
-        ballPosition.x = 70 + 50 * i - undefColor->w/2;
-        SDL_BlitSurface(undefColor, NULL, screen, &ballPosition);
-    }
-
-    SDL_FreeSurface(undefColor);
-    /* Update screen */
-    SDL_Flip(screen);
-}
-
 
 
 int new_game() {
