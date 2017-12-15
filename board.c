@@ -318,6 +318,37 @@ static void add_colors_board(SDL_Surface *plateau) {
 }
 
 
+/**
+ * Test if a clic is on a color on selecting board.
+ * \return -1 if no color is selected, or the selected color
+ */
+color_t is_color_selected(int x, int y) {
+
+    int x0 = 340 + 1;
+    int i;
+
+    if(x <= x0 || y < 35+3 || y>35+40+40 ) {
+        return UNDEFINED;
+    }
+
+    for(i = 0; i < COLORS_NB; i++) {
+
+        int xc = x0 + 20 + 3 + 40 * i + 17;
+        int yc = 35 + 3 + 17;
+
+        if(i>=COLORS_NB/2) {
+            xc -= (COLORS_NB/2) * 40;
+            yc += 40;
+        }
+
+        if((xc-x)*(xc-x)+(yc-y)*(yc-y) <= 17*17) {
+            return i;
+        }
+    }
+
+    return UNDEFINED;
+}
+
 
 SDL_Surface *create_board() {
     SDL_Surface *screen;

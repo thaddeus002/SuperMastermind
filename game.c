@@ -59,7 +59,7 @@ static void end_game(SDL_Surface *screen, int victory) {
     // show result;
     board_show_ending_message(screen, victory);
 
-    // TODO Show code
+    // show code
     board_show_secret(screen, &secret);
 
     SDL_Flip(screen);
@@ -77,6 +77,7 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
 
     int p;
     int v;
+    int c;
 
     // Don't allow clic when game is ended
     if(gameState == ENDED) {
@@ -110,6 +111,12 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
 
         free(result);
         return;
+    }
+
+    c= is_color_selected(x, y);
+    if(c>=0) {
+        selectedColor=c;
+	return;
     }
 }
 

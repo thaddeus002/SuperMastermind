@@ -59,6 +59,12 @@ void board_show_secret(SDL_Surface *screen, code_t *secret);
 void next_try(SDL_Surface *screen, int tryNumber);
 
 
+/**
+ * Test if a clic is on a color on selecting board.
+ * \return -1 if no color is selected, or the selected color
+ */
+color_t is_color_selected(int x, int y);
+
 
 SDL_Surface *create_board();
 
