@@ -46,19 +46,31 @@ int place_color(int x, int y, int tryNumber) {
 }
 
 
-void board_draw_color(SDL_Surface *screen, int index, color_t color, int tryNumber) {
+/**
+ * Draw a color ball at the specified height.
+ * \param y the height of ball center (from top)
+ */
+static void board_draw_color_ball(SDL_Surface *screen, int index, color_t color, int y) {
 
     SDL_Surface *colorBall;
     SDL_Rect ballPosition;
 
     ballPosition.x = 70 + 50 * index - 17;
-    ballPosition.y = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2 - 17;
+    ballPosition.y = y - 17;
 
     colorBall = SDL_LoadBMP(ballsImages[color]);
     /* The white must be turned to transparent */
     SDL_SetColorKey(colorBall, SDL_SRCCOLORKEY, SDL_MapRGB(colorBall->format, 255, 255, 255));
     SDL_BlitSurface(colorBall, NULL, screen, &ballPosition);
     SDL_FreeSurface(colorBall);
+}
+
+
+void board_draw_color(SDL_Surface *screen, int index, color_t color, int tryNumber) {
+
+    int y = HEADER_HEIGHT + LINE_HEIGHT * (tryNumber-1) + LINE_HEIGHT / 2;
+    board_draw_color_ball(screen, index, color, y);
+
     /* Update screen */
     SDL_Flip(screen);
 }
@@ -338,4 +350,52 @@ SDL_Surface *create_board() {
 }
 
 
+/**
+ * Show victory or defeat message.
+ * \param screen the board surface
+ * \param victory 1 if the secret was found, 0 otherwise
+ */
+void board_show_ending_message(SDL_Surface *screen, int victory) {
+    SDL_Surface *result;
+    SDL_Rect position;
 
+    position.x = 340 + 1;
+    position.y = 0;
+
+    if(victory) {
+        result = SDL_LoadBMP("data/victory.bmp");
+    } else {
+        result = SDL_LoadBMP("data/failled.bmp");
+    }
+
+    SDL_BlitSurface(result, NULL, screen, &position);
+    SDL_FreeSurface(result);
+}
+
+
+/**
+ * Show the secret after the game has ended.
+ */
+void board_show_secret(SDL_Surface *screen, code_t *secret) {
+
+    SDL_Surface *mask;
+    SDL_Rect position;
+    int y;
+    int i;
+
+    // clean secret zone
+
+    position.x = 20 + 2;
+    position.y = 30 + 2;
+
+    mask = SDL_CreateRGBSurface(SDL_HWSURFACE, 300 - 4, 60 - 4, 32, 0, 0, 0, 0);
+    SDL_FillRect(mask, NULL, SDL_MapRGB(mask->format, 121, 69, 24));
+    SDL_BlitSurface(mask, NULL, screen, &position);
+    SDL_FreeSurface(mask);
+
+    // draw secret
+    y = 30 + 60 / 2;
+    for(i=0; i<CODE_LENGHT; i++) {
+        board_draw_color_ball(screen, i, (*secret)[i], y);
+    }
+}

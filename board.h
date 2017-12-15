@@ -40,6 +40,19 @@ void board_show_result(SDL_Surface *screen, int *result, int tryNumber);
 
 
 /**
+ * Show victory or defeat message.
+ * \param screen the board surface
+ * \param victory 1 if the secret was found, 0 otherwise
+ */
+void board_show_ending_message(SDL_Surface *screen, int victory);
+
+/**
+ * Show the secret after the game has ended.
+ */
+void board_show_secret(SDL_Surface *screen, code_t *secret);
+
+
+/**
  * Show the places for the colors of next try.
  * \param board main window screen
  */

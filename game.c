@@ -54,27 +54,13 @@ static void init_game_state() {
  */
 static void end_game(SDL_Surface *screen, int victory) {
 
-    SDL_Surface *result;
-    SDL_Rect position;
-
     gameState = ENDED;
+
     // show result;
-
-    position.x = 340 + 1;
-    position.y = 0;
-
-    if(victory) {
-        result = SDL_LoadBMP("data/victory.bmp");
-    } else {
-        result = SDL_LoadBMP("data/failled.bmp");
-    }
-
-    SDL_BlitSurface(result, NULL, screen, &position);
-    SDL_FreeSurface(result);
-
+    board_show_ending_message(screen, victory);
 
     // TODO Show code
-
+    board_show_secret(screen, &secret);
 
     SDL_Flip(screen);
 }
