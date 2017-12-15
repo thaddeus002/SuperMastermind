@@ -69,9 +69,7 @@ int main(int argc, char **argv) {
     print_code(code);
 
 
-    // view the board
-    err = new_game();
-
-    return err;
+    // start game
+    return new_game();
 }
 

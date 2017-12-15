@@ -2,7 +2,7 @@
 
 PROG=SuperMastermind
 
-OBJS=main.o secret.o game.o
+OBJS=main.o secret.o game.o board.o
 
 all: $(PROG)
 
