@@ -32,6 +32,12 @@ static code_t try;
 /** The secret to find */
 static code_t secret;
 
+/** A game can be running or terminated */
+typedef enum {
+    RUNNING, ENDED
+} state_t;
+
+static state_t gameState;
 
 static void init_attempt_state() {
     int i;
@@ -46,6 +52,39 @@ static void init_game_state() {
     selectedColor = RED;
     change_code(&secret);
     init_attempt_state();
+    gameState = RUNNING;
+}
+
+
+/**
+ * Terminate the game. Show code and résult (victory or defeat).
+ * \param victory 1 is secret was found, 0 otherwise
+ */
+static void end_game(SDL_Surface *screen, int victory) {
+
+    SDL_Surface *result;
+    SDL_Rect position;
+
+    gameState = ENDED;
+    // show result;
+
+    position.x = 340 + 1;
+    position.y = 0;
+
+    if(victory) {
+        result = SDL_LoadBMP("data/victory.bmp");
+    } else {
+        result = SDL_LoadBMP("data/failled.bmp");
+    }
+
+    SDL_BlitSurface(result, NULL, screen, &position);
+    SDL_FreeSurface(result);
+
+
+    // TODO Show code
+
+
+    SDL_Flip(screen);
 }
 
 
@@ -237,9 +276,15 @@ static void next_try(SDL_Surface *screen) {
  */
 static void got_clic(SDL_Surface *screen, int x, int y) {
 
-    int p = place_color(x, y);
-    int v = clic_verify(x, y);
+    int p;
+    int v;
 
+    // Don't allow clic when game is ended
+    if(gameState == ENDED) {
+        return;
+    }
+
+    p = place_color(x, y);
     if(p>=0) {
         try[p]=selectedColor;
         board_draw_color(screen, p, selectedColor);
@@ -249,22 +294,22 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
         return;
     }
 
+    v = clic_verify(x, y);
     if(v) {
         int *result = test(&try, &secret);
         fprintf(stdout, "%d good - %d misplaced\n", result[0], result[1]);
         board_show_result(screen, result);
         if(result[0] == CODE_LENGHT) {
-            // TODO Victory
-        }
-        free(result);
-        if(tryNumber < 10) {
+            end_game(screen, 1);
+        } else if(tryNumber < 10) {
             tryNumber++;
             init_attempt_state();
             next_try(screen);
         } else {
-            // TODO Defeat
+            end_game(screen, 0);
         }
 
+        free(result);
         return;
     }
 }
