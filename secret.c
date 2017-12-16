@@ -4,6 +4,7 @@
  */
 
 
+#include <time.h>
 #include <stdlib.h>
 #include "secret.h"
 
@@ -15,12 +16,12 @@
  */
 int change_code(code_t *code) {
 
-    // TODO Randomize
-
     int i;
 
+    srand(time(NULL));   // should only be called once
+
     for(i=0; i<CODE_LENGHT; i++) {
-        (*code)[i]=i;
+        (*code)[i]=rand() % COLORS_NB;
     }
 }
 
