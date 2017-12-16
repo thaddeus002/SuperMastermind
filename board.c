@@ -46,23 +46,38 @@ int place_color(int x, int y, int tryNumber) {
 }
 
 
+
+
+
 /**
- * Draw a color ball at the specified height.
- * \param y the height of ball center (from top)
+ * Draw a color ball at the specified position.
+ * \param x x coordinate of the left-top corner
+ * \param y y coordinate of the left-top corner
  */
-static void board_draw_color_ball(SDL_Surface *screen, int index, color_t color, int y) {
+static void board_draw_color_ball_to_pos(SDL_Surface *screen, color_t color, int x, int y) {
 
     SDL_Surface *colorBall;
     SDL_Rect ballPosition;
 
-    ballPosition.x = 70 + 50 * index - 17;
-    ballPosition.y = y - 17;
+    ballPosition.x = x;
+    ballPosition.y = y;
 
     colorBall = SDL_LoadBMP(ballsImages[color]);
     /* The white must be turned to transparent */
     SDL_SetColorKey(colorBall, SDL_SRCCOLORKEY, SDL_MapRGB(colorBall->format, 255, 255, 255));
     SDL_BlitSurface(colorBall, NULL, screen, &ballPosition);
     SDL_FreeSurface(colorBall);
+}
+
+
+
+/**
+ * Draw a color ball at the specified height.
+ * \param y the height of ball center (from top)
+ */
+static void board_draw_color_ball(SDL_Surface *screen, int index, color_t color, int y) {
+
+    board_draw_color_ball_to_pos(screen, color, 70 + 50 * index - 17, y - 17);
 }
 
 
@@ -74,6 +89,7 @@ void board_draw_color(SDL_Surface *screen, int index, color_t color, int tryNumb
     /* Update screen */
     SDL_Flip(screen);
 }
+
 
 
 /**
@@ -272,8 +288,25 @@ static void add_secret(SDL_Surface *plateau) {
     SDL_FreeSurface(secret);
 }
 
+
 /**
- * Create the colors board and add it the the screen.
+ * Give the relative position of colors ball on the selection board.
+ * Fill x and y with values for the blit method
+ */
+static void colors_position_on_board(color_t color, Sint16 *x, Sint16 *y){
+
+    *x = 20 + 3 + 40 * color;
+    *y = 35 + 3;
+
+    if(color>=COLORS_NB/2) {
+        *x -= (COLORS_NB/2) * 40;
+        *y += 40;
+    }
+}
+
+
+/**
+ * Create the colors board and add it to the screen.
  */
 static void add_colors_board(SDL_Surface *plateau) {
     SDL_Surface *board, *text;
@@ -297,13 +330,7 @@ static void add_colors_board(SDL_Surface *plateau) {
         SDL_Surface *colorBall;
         SDL_Rect colorPosition;
 
-        colorPosition.x = 20 + 3 + 40 * i;
-        colorPosition.y = 35 + 3;
-
-        if(i>=COLORS_NB/2) {
-            colorPosition.x -= (COLORS_NB/2) * 40;
-            colorPosition.y += 40;
-        }
+        colors_position_on_board(i, &(colorPosition.x), &(colorPosition.y));
 
         colorBall = SDL_LoadBMP(ballsImages[i]);
         /* The white must be turned to transparent */
@@ -333,13 +360,12 @@ color_t is_color_selected(int x, int y) {
 
     for(i = 0; i < COLORS_NB; i++) {
 
-        int xc = x0 + 20 + 3 + 40 * i + 17;
-        int yc = 35 + 3 + 17;
+        Sint16 xc;
+        Sint16 yc;
 
-        if(i>=COLORS_NB/2) {
-            xc -= (COLORS_NB/2) * 40;
-            yc += 40;
-        }
+        colors_position_on_board(i, &xc, &yc);
+        xc += x0 + 17;
+        yc += 17;
 
         if((xc-x)*(xc-x)+(yc-y)*(yc-y) <= 17*17) {
             return i;
@@ -348,6 +374,36 @@ color_t is_color_selected(int x, int y) {
 
     return UNDEFINED;
 }
+
+
+
+/**
+ * Mark the newly selected color.
+ */
+void board_select(SDL_Surface *screen, color_t old, color_t new) {
+
+    Sint16 x, y;
+    SDL_Surface *star;
+    SDL_Rect position;
+
+    // deselect old color
+    if(old != UNDEFINED) {
+        colors_position_on_board(old, &x, &y);
+        board_draw_color_ball_to_pos(screen, old, x+340+1, y);
+    }
+
+    // select new color
+    colors_position_on_board(new, &(position.x), &(position.y));
+    position.x += 340+1 + 9;
+    position.y += 9;
+    star = SDL_LoadBMP("data/selected.bmp");
+    SDL_SetColorKey(star, SDL_SRCCOLORKEY, SDL_MapRGB(star->format, 255, 255, 255));
+    SDL_BlitSurface(star, NULL, screen, &position);
+    SDL_FreeSurface(star);
+    SDL_Flip(screen);
+}
+
+
 
 
 SDL_Surface *create_board() {

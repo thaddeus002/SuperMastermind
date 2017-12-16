@@ -115,6 +115,7 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
 
     c= is_color_selected(x, y);
     if(c>=0) {
+        board_select(screen, selectedColor, c);
         selectedColor=c;
 	return;
     }
@@ -130,13 +131,13 @@ int new_game() {
 
     init_game_state();
 
-
     screen = create_board();
 
     if(screen == NULL) {
         return(EXIT_FAILURE);
     }
 
+    board_select(screen, UNDEFINED, selectedColor);
     next_try(screen, tryNumber);
 
     SDL_Flip(screen); /* Update screen */

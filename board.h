@@ -66,6 +66,11 @@ void next_try(SDL_Surface *screen, int tryNumber);
 color_t is_color_selected(int x, int y);
 
 
+/**
+ * Mark the newly selected color.
+ */
+void board_select(SDL_Surface *screen, color_t old, color_t new);
+
 SDL_Surface *create_board();
 
 
