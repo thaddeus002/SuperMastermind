@@ -72,6 +72,7 @@ int *test(code_t *combinaison, code_t *secret){
                 if(!counted[j] && (*combinaison)[i] == (*secret)[j] ) {
                     test[1]++;
                     counted[j]=1;
+                    break;
                 }
             }
         }
