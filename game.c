@@ -9,7 +9,7 @@
 
 #include "secret.h"
 #include "board.h"
-
+#include "dialog.h"
 
 
 /** Number of current try */
@@ -24,9 +24,9 @@ static code_t try;
 /** The secret to find */
 static code_t secret;
 
-/** A game can be running or terminated */
+/** A game can be running or terminated or waiting */
 typedef enum {
-    RUNNING, ENDED
+    RUNNING, ENDED, CONFIRM_QUIT
 } state_t;
 
 static state_t gameState;
@@ -79,11 +79,6 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
     int v;
     int c;
 
-    // Don't allow clic when game is ended
-    if(gameState == ENDED) {
-        return;
-    }
-
     p = place_color(x, y, tryNumber);
     if(p>=0) {
         try[p]=selectedColor;
@@ -122,8 +117,6 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
 }
 
 
-
-
 int new_game() {
     SDL_Surface *screen;
     SDL_Event event;
@@ -146,22 +139,34 @@ int new_game() {
         SDL_WaitEvent(&event);
         switch(event.type) {
         case SDL_QUIT:
-            loop = 0;
+            gameState = CONFIRM_QUIT;
+            dialog_display(screen, "data/confirm_quit.bmp", 2);
             break;
 
         case SDL_KEYDOWN:
             switch (event.key.keysym.sym) {
-            // press escape or 'q' to quit
-            case SDLK_ESCAPE:
+            // press 'q' to quit
             case SDLK_q:
-                loop = 0;
+                gameState = CONFIRM_QUIT;
+                dialog_display(screen, "data/confirm_quit.bmp", 2);
                 break;
             }
             break;
 
         case SDL_MOUSEBUTTONUP:
             if (event.button.button == SDL_BUTTON_LEFT) {
-                got_clic(screen, event.button.x, event.button.y);
+                if(gameState == RUNNING) {
+                    got_clic(screen, event.button.x, event.button.y);
+                }
+                if(gameState == CONFIRM_QUIT) {
+                    action_t action = is_clicked(screen, event.button.x, event.button.y);
+                    if(action==OK) {
+                        loop = 0;
+                    }
+                    if(action != NONE) {
+                        gameState = RUNNING;
+                    }
+                }
             }
             break;
         }
@@ -169,6 +174,6 @@ int new_game() {
 
     SDL_Quit();
 
-    return EXIT_SUCCESS;
+    return 0;
 }
 
