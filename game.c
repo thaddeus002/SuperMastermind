@@ -24,12 +24,14 @@ static code_t try;
 /** The secret to find */
 static code_t secret;
 
+
 /** A game can be running or terminated or waiting */
 typedef enum {
-    RUNNING, ENDED, CONFIRM_QUIT
+    RUNNING, ENDED, WAITING_CONFIRM_QUIT
 } state_t;
 
 static state_t gameState;
+
 
 static void init_attempt_state() {
     int i;
@@ -48,6 +50,7 @@ static void init_game_state() {
 }
 
 
+
 /**
  * Terminate the game. Show code and résult (victory or defeat).
  * \param victory 1 is secret was found, 0 otherwise
@@ -64,9 +67,6 @@ static void end_game(SDL_Surface *screen, int victory) {
 
     SDL_Flip(screen);
 }
-
-
-
 
 
 
@@ -117,6 +117,12 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
 }
 
 
+static void confirm_quit() {
+    gameState = WAITING_CONFIRM_QUIT;
+    dialog_display(screen, "data/confirm_quit.bmp", 2);
+}
+
+
 int new_game() {
     SDL_Surface *screen;
     SDL_Event event;
@@ -139,16 +145,14 @@ int new_game() {
         SDL_WaitEvent(&event);
         switch(event.type) {
         case SDL_QUIT:
-            gameState = CONFIRM_QUIT;
-            dialog_display(screen, "data/confirm_quit.bmp", 2);
+            confirm_quit();
             break;
 
         case SDL_KEYDOWN:
             switch (event.key.keysym.sym) {
             // press 'q' to quit
             case SDLK_q:
-                gameState = CONFIRM_QUIT;
-                dialog_display(screen, "data/confirm_quit.bmp", 2);
+                confirm_quit();
                 break;
             }
             break;

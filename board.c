@@ -47,8 +47,6 @@ int place_color(int x, int y, int tryNumber) {
 
 
 
-
-
 /**
  * Draw a color ball at the specified position.
  * \param x x coordinate of the left-top corner
