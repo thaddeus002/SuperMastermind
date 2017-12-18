@@ -10,6 +10,10 @@ You need [SDL 1.2](http://libsdl.org) to build this project. Once it is installe
     $ cd SuperMastermind
     $ make
 
+## Launch
+
+    $ ./SuperMastermind
+
 ## Rules
 
 The game's aim is to discover a secret code composed by 5 colors (they are not necessary all different). You have ten attemps. After each attemp, you have a black star for each color at the exact place, and a white star for each color misplaced. Good luck.
