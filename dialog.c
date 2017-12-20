@@ -36,9 +36,6 @@ static button_t *create_button(SDL_Surface *box, int buttonNumber, int nb) {
     button_t *newButton;
     int l = box->w / nb;
 
-    fprintf(stdout, "Box de %dx%d\n", box->w, box->h);
-
-
     newButton = malloc(sizeof(button_t));
 
     // button width is 100
@@ -48,10 +45,6 @@ static button_t *create_button(SDL_Surface *box, int buttonNumber, int nb) {
 
     newButton->xmax = newButton->xmin + 100;
     newButton->ymax = newButton->ymin + 38;
-
-
-    fprintf(stdout, "Pos bouton = %d,%d - %d,%d\n", newButton->xmin, newButton->ymin, newButton->xmax, newButton->ymax);
-
 
     switch(buttonNumber) {
     case 1:
@@ -141,15 +134,12 @@ static void free_dialog() {
 
 static int in_button(button_t *but, int x, int y){
 
-    fprintf(stdout, "%d,%d entre %d-%d et %d-%d\n", x, y, but->xmin, but->xmax, but->ymin, but->ymax);
-
     if(x>but->xmin && x<but->xmax && y>but->ymin && y<but->ymax) {
         return 1;
     }
 
     return 0;
 }
-
 
 
 

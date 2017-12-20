@@ -92,7 +92,6 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
     v = clic_verify(x, y, tryNumber);
     if(v && is_completed(&try)) {
         int *result = test(&try, &secret);
-        fprintf(stdout, "%d good - %d misplaced\n", result[0], result[1]);
         board_show_result(screen, result, tryNumber);
         if(result[0] == CODE_LENGHT) {
             end_game(screen, 1);

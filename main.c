@@ -44,30 +44,7 @@ static void print_result(int *result) {
 
 int main(int argc, char **argv) {
 
-    code_t code;
-    code_t try;
-    int *result;
-    int err;
-
     present(argv[0]);
-
-    // this is for testing
-
-    err=change_code(&code);
-
-    try[0]=RED;
-    try[1]=ORANGE;
-    try[2]=GREEN;
-    try[3]=PURPLE;
-    try[4]=WHITE;
-
-    result = test(&try, &code);
-
-    print_code(try);
-    print_result(result);
-    free(result);
-    print_code(code);
-
 
     // start game
     return new_game();
