@@ -10,6 +10,7 @@
 #include "secret.h"
 #include "board.h"
 #include "dialog.h"
+#include "menu.h"
 
 
 /** Number of current try */
@@ -70,6 +71,13 @@ static void end_game(SDL_Surface *screen, int victory) {
 
 
 
+static void confirm_quit(SDL_Surface *screen) {
+    gameState = WAITING_CONFIRM_QUIT;
+    dialog_display(screen, "data/confirm_quit.bmp", 2);
+}
+
+
+
 /**
  * A mouse clic has been made on position x,y.
  */
@@ -78,6 +86,7 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
     int p;
     int v;
     int c;
+    int m;
 
     p = place_color(x, y, tryNumber);
     if(p>=0) {
@@ -113,12 +122,17 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
         selectedColor=c;
 	return;
     }
-}
 
-
-static void confirm_quit(SDL_Surface *screen) {
-    gameState = WAITING_CONFIRM_QUIT;
-    dialog_display(screen, "data/confirm_quit.bmp", 2);
+    m = menu_clicked(screen, x, y);
+    if(m>=0) {
+        switch(m) {
+            case QUIT:
+                confirm_quit(screen);
+                break;
+            default:
+                fprintf(stdout, "Not yet implemented\n");
+        }
+    }
 }
 
 

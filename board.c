@@ -10,9 +10,10 @@
 
 #include "board.h"
 #include "secret.h"
+#include "menu.h"
 
 #define WIDTH 541
-#define HEIGHT 700
+#define HEIGHT 699
 
 #define HEADER_HEIGHT 120
 #define LINE_HEIGHT 54
@@ -432,6 +433,8 @@ SDL_Surface *create_board() {
     for(i=1;i<=NB_ATTEMPTS;i++) {
         add_horizontal_separator(screen, HEADER_HEIGHT+LINE_HEIGHT*i);
     }
+
+    menu_display(screen, HEADER_HEIGHT+LINE_HEIGHT*NB_ATTEMPTS + 1);
 
     return screen;
 }
