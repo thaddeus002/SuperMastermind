@@ -117,7 +117,7 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
 }
 
 
-static void confirm_quit() {
+static void confirm_quit(SDL_Surface *screen) {
     gameState = WAITING_CONFIRM_QUIT;
     dialog_display(screen, "data/confirm_quit.bmp", 2);
 }
@@ -145,14 +145,14 @@ int new_game() {
         SDL_WaitEvent(&event);
         switch(event.type) {
         case SDL_QUIT:
-            confirm_quit();
+            confirm_quit(screen);
             break;
 
         case SDL_KEYDOWN:
             switch (event.key.keysym.sym) {
             // press 'q' to quit
             case SDLK_q:
-                confirm_quit();
+                confirm_quit(screen);
                 break;
             }
             break;
@@ -162,7 +162,7 @@ int new_game() {
                 if(gameState == RUNNING) {
                     got_clic(screen, event.button.x, event.button.y);
                 }
-                if(gameState == CONFIRM_QUIT) {
+                if(gameState == WAITING_CONFIRM_QUIT) {
                     action_t action = is_clicked(screen, event.button.x, event.button.y);
                     if(action==OK) {
                         loop = 0;
