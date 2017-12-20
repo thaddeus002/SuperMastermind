@@ -88,39 +88,42 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
     int c;
     int m;
 
-    p = place_color(x, y, tryNumber);
-    if(p>=0) {
-        try[p]=selectedColor;
-        board_draw_color(screen, p, selectedColor, tryNumber);
-        if(is_completed(&try)) {
-            board_show_button(screen, tryNumber);
-        }
-        return;
-    }
+    if(gameState == RUNNING) {
 
-    v = clic_verify(x, y, tryNumber);
-    if(v && is_completed(&try)) {
-        int *result = test(&try, &secret);
-        board_show_result(screen, result, tryNumber);
-        if(result[0] == CODE_LENGHT) {
-            end_game(screen, 1);
-        } else if(tryNumber < NB_ATTEMPTS) {
-            tryNumber++;
-            init_attempt_state();
-            next_try(screen, tryNumber);
-        } else {
-            end_game(screen, 0);
+        p = place_color(x, y, tryNumber);
+        if(p>=0) {
+            try[p]=selectedColor;
+            board_draw_color(screen, p, selectedColor, tryNumber);
+            if(is_completed(&try)) {
+                board_show_button(screen, tryNumber);
+            }
+            return;
         }
 
-        free(result);
-        return;
-    }
+        v = clic_verify(x, y, tryNumber);
+        if(v && is_completed(&try)) {
+            int *result = test(&try, &secret);
+            board_show_result(screen, result, tryNumber);
+            if(result[0] == CODE_LENGHT) {
+                end_game(screen, 1);
+            } else if(tryNumber < NB_ATTEMPTS) {
+                tryNumber++;
+                init_attempt_state();
+                next_try(screen, tryNumber);
+            } else {
+                end_game(screen, 0);
+            }
 
-    c= is_color_selected(x, y);
-    if(c>=0) {
-        board_select(screen, selectedColor, c);
-        selectedColor=c;
-	return;
+            free(result);
+            return;
+        }
+
+        c= is_color_selected(x, y);
+        if(c>=0) {
+            board_select(screen, selectedColor, c);
+            selectedColor=c;
+	        return;
+        }
     }
 
     m = menu_clicked(screen, x, y);
@@ -172,9 +175,6 @@ int new_game() {
 
         case SDL_MOUSEBUTTONUP:
             if (event.button.button == SDL_BUTTON_LEFT) {
-                if(gameState == RUNNING) {
-                    got_clic(screen, event.button.x, event.button.y);
-                }
                 if(gameState == WAITING_CONFIRM_QUIT) {
                     action_t action = is_clicked(screen, event.button.x, event.button.y);
                     if(action==OK) {
@@ -183,6 +183,8 @@ int new_game() {
                     if(action != NONE) {
                         gameState = RUNNING;
                     }
+                } else {
+                    got_clic(screen, event.button.x, event.button.y);
                 }
             }
             break;
