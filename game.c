@@ -95,7 +95,7 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
         board_show_result(screen, result, tryNumber);
         if(result[0] == CODE_LENGHT) {
             end_game(screen, 1);
-        } else if(tryNumber < 10) {
+        } else if(tryNumber < NB_ATTEMPTS) {
             tryNumber++;
             init_attempt_state();
             next_try(screen, tryNumber);

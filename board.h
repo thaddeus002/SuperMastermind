@@ -12,6 +12,9 @@
 
 #include "secret.h"
 
+// Number of possible attempts
+#define NB_ATTEMPTS 10
+
 
 /**
  * \return the index of color for pos (x, y) or -1

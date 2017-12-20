@@ -15,8 +15,7 @@
 #define HEIGHT 700
 
 #define HEADER_HEIGHT 120
-#define LINE_HEIGHT 58
-
+#define LINE_HEIGHT 54
 
 /** the files for the colored balls */
 static char *ballsImages[] = { "data/red.bmp", "data/green.bmp", "data/blue.bmp", "data/white.bmp", "data/orange.bmp", "data/cyan.bmp", "data/yellow.bmp", "data/purple.bmp"};
@@ -257,11 +256,14 @@ static void add_vertical_separator(SDL_Surface *board, int dist){
 
     SDL_Surface *line;
     SDL_Rect position;
+    int h;
 
     position.x = dist;
     position.y = 0;
 
-    line = SDL_CreateRGBSurface(SDL_HWSURFACE, 1, board->h, 32, 0, 0, 0, 0);
+    h = HEADER_HEIGHT + LINE_HEIGHT * NB_ATTEMPTS;
+
+    line = SDL_CreateRGBSurface(SDL_HWSURFACE, 1, h, 32, 0, 0, 0, 0);
     SDL_FillRect(line, NULL, SDL_MapRGB(board->format, 178, 86, 8));
 
     SDL_BlitSurface(line, NULL, board, &position);
@@ -427,7 +429,7 @@ SDL_Surface *create_board() {
     add_colors_board(screen);
     add_horizontal_separator(screen, HEADER_HEIGHT);
     // tries' zones
-    for(i=1;i<=9;i++) {
+    for(i=1;i<=NB_ATTEMPTS;i++) {
         add_horizontal_separator(screen, HEADER_HEIGHT+LINE_HEIGHT*i);
     }
 
