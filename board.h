@@ -76,6 +76,10 @@ void board_select(SDL_Surface *screen, color_t old, color_t new);
 
 SDL_Surface *create_board();
 
+/**
+ * Clean the board for beginning a new game.
+ */
+void board_clean(SDL_Surface *screen);
 
 #endif
 

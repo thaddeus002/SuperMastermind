@@ -77,6 +77,17 @@ static void confirm_quit(SDL_Surface *screen) {
 }
 
 
+static void start_a_new_game(SDL_Surface *screen) {
+    color_t oldColor = selectedColor;
+
+    board_clean(screen);
+    init_game_state();
+    board_select(screen, oldColor, selectedColor);
+    next_try(screen, tryNumber);
+    SDL_Flip(screen);
+}
+
+
 
 /**
  * A mouse clic has been made on position x,y.
@@ -129,6 +140,9 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
     m = menu_clicked(screen, x, y);
     if(m>=0) {
         switch(m) {
+            case NEW_GAME:
+                start_a_new_game(screen);
+                break;
             case QUIT:
                 confirm_quit(screen);
                 break;

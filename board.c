@@ -394,16 +394,46 @@ void board_select(SDL_Surface *screen, color_t old, color_t new) {
     }
 
     // select new color
-    colors_position_on_board(new, &(position.x), &(position.y));
-    position.x += 340+1 + 9;
-    position.y += 9;
-    star = SDL_LoadBMP("data/selected.bmp");
-    SDL_SetColorKey(star, SDL_SRCCOLORKEY, SDL_MapRGB(star->format, 255, 255, 255));
-    SDL_BlitSurface(star, NULL, screen, &position);
-    SDL_FreeSurface(star);
+    if(new != UNDEFINED) {
+        colors_position_on_board(new, &(position.x), &(position.y));
+        position.x += 340+1 + 9;
+        position.y += 9;
+        star = SDL_LoadBMP("data/selected.bmp");
+        SDL_SetColorKey(star, SDL_SRCCOLORKEY, SDL_MapRGB(star->format, 255, 255, 255));
+        SDL_BlitSurface(star, NULL, screen, &position);
+        SDL_FreeSurface(star);
+    }
+
     SDL_Flip(screen);
 }
 
+
+/**
+ * Clean the board for beginning a new game.
+ */
+void board_clean(SDL_Surface *screen) {
+
+    int h = LINE_HEIGHT * NB_ATTEMPTS;
+    int w = screen->w;
+    SDL_Surface *mask;
+    SDL_Rect position;
+    int i;
+
+    mask = SDL_CreateRGBSurface(SDL_HWSURFACE, w, h, 32, 0, 0, 0, 0);
+    SDL_FillRect(mask, NULL, SDL_MapRGB(mask->format, 79, 33, 17));
+
+    position.x=0;
+    position.y=HEADER_HEIGHT+1;
+    SDL_BlitSurface(mask, NULL, screen, &position);
+    SDL_FreeSurface(mask);
+
+    add_vertical_separator(screen, 340);
+    for(i=0;i<=NB_ATTEMPTS;i++) {
+        add_horizontal_separator(screen, HEADER_HEIGHT+LINE_HEIGHT*i);
+    }
+
+    SDL_Flip(screen);
+}
 
 
 
