@@ -78,11 +78,9 @@ static void confirm_quit(SDL_Surface *screen) {
 
 
 static void start_a_new_game(SDL_Surface *screen) {
-    color_t oldColor = selectedColor;
-
     board_clean(screen);
     init_game_state();
-    board_select(screen, oldColor, selectedColor);
+    board_select(screen, UNDEFINED, selectedColor);
     next_try(screen, tryNumber);
     SDL_Flip(screen);
 }

@@ -432,6 +432,9 @@ void board_clean(SDL_Surface *screen) {
         add_horizontal_separator(screen, HEADER_HEIGHT+LINE_HEIGHT*i);
     }
 
+    add_colors_board(screen);
+    add_secret(screen);
+
     SDL_Flip(screen);
 }
 
