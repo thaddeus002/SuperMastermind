@@ -28,7 +28,7 @@ static code_t secret;
 
 /** A game can be running or terminated or waiting */
 typedef enum {
-    RUNNING, ENDED, WAITING_CONFIRM_QUIT
+    RUNNING, ENDED, WAITING_CONFIRM_QUIT, WAITING_DIALOG
 } state_t;
 
 static state_t gameState;
@@ -141,6 +141,14 @@ static void got_clic(SDL_Surface *screen, int x, int y) {
             case NEW_GAME:
                 start_a_new_game(screen);
                 break;
+            case ABOUT:
+                gameState = WAITING_DIALOG;
+                dialog_display(screen, "data/about.bmp", 1);
+                break;
+            case HELP:
+                gameState = WAITING_DIALOG;
+                dialog_display(screen, "data/help.bmp", 1);
+                break;
             case QUIT:
                 confirm_quit(screen);
                 break;
@@ -193,6 +201,10 @@ int new_game() {
                         loop = 0;
                     }
                     if(action != NONE) {
+                        gameState = RUNNING;
+                    }
+                } else if(gameState == WAITING_DIALOG) {
+                    if(is_clicked(screen, event.button.x, event.button.y)) {
                         gameState = RUNNING;
                     }
                 } else {
